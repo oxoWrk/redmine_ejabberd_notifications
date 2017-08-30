@@ -1,4 +1,5 @@
-require_relative './xmpp_bot'
+require 'net/http'
+require 'json'
 
 class NotifierHook < Redmine::Hook::Listener
   #TODO: it is plans to rename hooks in upstream
@@ -30,7 +31,28 @@ class NotifierHook < Redmine::Hook::Listener
     Rails.logger.info "Sending XMPP notification to: #{notification_recipients.map(&:xmpp_jid).join(', ')}"
     notification_recipients.each do |user|
       message = yield(user)
-      Bot.deliver user.xmpp_jid, message
+      uri = URI(config['url']+'/send_message')
+      if uri.scheme == 'https'
+        ssl = true
+      else
+        ssl = false
+      end
+      req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
+      req.basic_auth config['jid'], config['jidpassword']
+      req.body = {
+            :type => "chat",
+            :from => config['jid'],
+            :to => user.xmpp_jid,
+            :body => message
+            }.to_json
+      begin
+        res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: ssl) do |http|
+          http.request(req)
+        end
+        Rails.logger.debug "HTTP request result : #{res.body}"
+      rescue Exception => err
+        Rails.logger.error "HTTP request error : #{err}"
+      end
     end
   end
 
@@ -47,6 +69,6 @@ class NotifierHook < Redmine::Hook::Listener
   end
 
   def config
-    Setting.plugin_redmine_xmpp_notifications
+    Setting.plugin_redmine_ejabberd_notifications
   end
 end

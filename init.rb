@@ -1,10 +1,7 @@
 require "redmine"
-require "xmpp4r"
 
-require_dependency "xmpp_bot"
 require_dependency "notifier_hook"
 require_dependency "my_account_hooks"
-#require_dependency "issue" #TODO
 require_dependency "user_hooks"
 require_dependency "user"
 
@@ -14,22 +11,15 @@ else
   User.safe_attributes "xmpp_jid"
 end
 
-Redmine::Plugin.register :redmine_xmpp_notifications do
-  name "Redmine XMPP Notifications plugin"
-  author "Pavel Musolin & Vadim Misbakh-Soloviov & Yokujin Yokosuka & Others"
-  description "A plugin to send Redmine Activity and receive commands over XMPP"
-  version "2.1.0"
-  url "https://github.com/redmine-xmpp/notifications"
+Redmine::Plugin.register :redmine_ejabberd_notifications do
+  name "Redmine XMPP Notifications plugin using ejabberd server"
+  author "Ilya Kalashnikov & redmine_xmpp_notifications plugin contributors"
+  description "Plugin to send XMPP notifications using the ejabberd server and its Rest API"
+  version "0.0.1"
+  url ""
 
-  settings :default => {"jid" => "", "password" => "", "send_to_watchers" => true}, :partial => "settings/xmpp_settings"
+  settings :default => {"url" => "", "jid" => "", "password" => "", "send_to_watchers" => true}, :partial => "settings/xmpp_settings"
 end
 
-Rails.logger.info "#{'*'*65}\n* XMPP Bot init.rb\n#{'*'*65}"
+Rails.logger.info "#{'*'*65}\n* Plugin redmine_ejabberd_notifications init\n#{'*'*65}"
 
-
-# Start bot only when XMPP_BOT_STARTUP env var is set
-ENV['XMPP_BOT_STARTUP'] && Rails.configuration.to_prepare do
-  Rails.logger.info "#{'*'*65}\n* XMPP_BOT_STARTUP env var exists - requesting bot startup\n#{'*'*65}"
-
-  Bot.ping
-end

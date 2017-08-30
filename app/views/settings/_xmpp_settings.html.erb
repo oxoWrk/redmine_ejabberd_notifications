@@ -1,6 +1,11 @@
 <fieldset>
   <legend><%= l(:xmpp_label_connection_settings) %></legend>
   <p>
+    <label><%= l(:xmpp_label_ejabberd_api_url) %></label>
+    <%= text_field_tag "settings[url]", @settings["url"] %>
+  </p>
+  
+  <p>
     <label><%= l(:xmpp_label_jid) %></label>
     <%= text_field_tag "settings[jid]", @settings["jid"] %>
   </p>
