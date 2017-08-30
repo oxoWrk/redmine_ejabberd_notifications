@@ -20,6 +20,31 @@ Following actions will result in notifications to XMPP:
 - Restart your Redmine.
 
 
-## User Settings
+## User settings
 
 - Fill out the Jabber ID on user account settings page to receive XMPP notifications 
+
+## ejabberd configuration
+
+    ###.   ====================
+    ###'   ACCESS CONTROL  LISTS
+  
+    acl:
+      redmine_user:
+        user:
+          - "redmine@example.com"
+
+    ###.  =======
+    ###'  API PERMISSIONS
+
+    api_permissions:
+      "console commands":
+        from:
+          - ejabberd_ctl
+        who: all
+        what: "*"
+      "redmine access":
+        who:
+          - redmine_user 
+        what:
+          - "send_message"
